@@ -5,8 +5,10 @@
 Matrix::Matrix(std::size_t rows, std::size_t cols) : rows_(rows), cols_(cols), data_(rows * cols, 0.0f) {}
 
 float& Matrix::operator()(std::size_t row, std::size_t col) { return data_[row * cols_ + col]; }
-
 const float& Matrix::operator()(std::size_t row, std::size_t col) const { return data_[row * cols_ + col]; }
+
+float& Matrix::operator[](std::size_t index) { return data_[index]; }
+const float& Matrix::operator[](std::size_t index) const { return data_[index]; }
 
 Matrix Matrix::operator+(const Matrix& other) const {
     Matrix result = *this;
@@ -80,6 +82,10 @@ Matrix Matrix::transpose() const {
     }
     return result;
 }   
+
+std::size_t Matrix::size() const noexcept {
+    return data_.size();
+}
 
 std::size_t Matrix::get_rows() const noexcept{
     return rows_;

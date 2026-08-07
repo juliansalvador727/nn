@@ -18,9 +18,13 @@ public:
     Matrix(Matrix&& other) noexcept = default;
     Matrix& operator=(Matrix&& other) noexcept = default;
 
-    // accessing
+    // accessing via 2d math
     float& operator()(std::size_t row, std::size_t col);
     const float& operator()(std::size_t row, std::size_t col) const;
+
+    // accessing via flat indexing
+    float& operator[](std::size_t index);
+    const float& operator[](std::size_t index) const;
 
     // basic operations
     [[nodiscard]] Matrix operator+(const Matrix& other) const;
@@ -30,12 +34,16 @@ public:
     [[nodiscard]] Matrix operator*(float scalar) const;
                   Matrix& operator*=(float scalar);
 
+
     [[nodiscard]] Matrix hadamard(const Matrix& other) const; // element wise matrix multiplication
     [[nodiscard]] Matrix matmul(const Matrix& other) const; // og matrix multiplication
     [[nodiscard]] Matrix transpose() const;
 
+    [[nodiscard]] std::size_t size() const noexcept;
     [[nodiscard]] std::size_t get_rows() const noexcept;
     [[nodiscard]] std::size_t get_cols() const noexcept;
+
+
 };
 
 // for syntactic completeness, allow 2.0f * matrix
