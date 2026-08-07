@@ -3,11 +3,11 @@
 
 class Matrix {
     private:
-        int rows_;
-        int cols_;
+        std::size_t rows_;
+        std::size_t cols_;
         std::vector<float> data_;
     public:
-        Matrix(int rows, int cols);
+        Matrix(std::size_t rows, std::size_t cols);
 
         ~Matrix() = default;
 
@@ -15,21 +15,24 @@ class Matrix {
         Matrix& operator=(const Matrix& other) = default;
 
         Matrix(Matrix&& other) noexcept = default;
-        Matrix& operator=(Matrix&& other) = default;
+        Matrix& operator=(Matrix&& other) noexcept = default;
 
         // accessing
-        float& operator()(int row, int col);
-        const float& operator()(int row, int col) const;
+        float& operator()(std::size_t row, std::size_t col);
+        const float& operator()(std::size_t row, std::size_t col) const;
 
         // basic operations
-        Matrix operator+(const Matrix& other) const;
-        Matrix operator-(const Matrix& other) const;
-        Matrix operator*(float scalr) const;
+        [[nodiscard]] Matrix operator+(const Matrix& other) const;
+        [[nodiscard]] Matrix& operator+=(const Matrix& other);
+        [[nodiscard]] Matrix operator-(const Matrix& other) const;
+        [[nodiscard]] Matrix& operator-=(const Matrix& other);
+        [[nodiscard]] Matrix operator*(float scalar) const;
+        [[nodiscard]] Matrix& operator*=(float scalar);
 
-        Matrix hadamard(const Matrix& other) const; // element wise matrix multiplication
-        Matrix matmul(const Matrix& other) const; // og matrix multiplication
-        Matrix transpose() const;
+        [[nodiscard]] Matrix hadamard(const Matrix& other) const; // element wise matrix multiplication
+        [[nodiscard]] Matrix matmul(const Matrix& other) const; // og matrix multiplication
+        [[nodiscard]] Matrix transpose() const;
 
-        int get_rows() const;
-        int get_cols() const;
+        std::size_t get_rows() const;
+        std::size_t get_cols() const;
 };
