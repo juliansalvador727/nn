@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-std=c++20, -I/home/julian/nn/include, -Wall, -Wextra]
