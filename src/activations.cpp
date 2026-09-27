@@ -84,7 +84,6 @@ Matrix tanh_derivative(const Matrix& input) {
 Matrix softmax(const Matrix& input) {
     if (input.get_cols() == 0) throw std::invalid_argument("softmax requires at least one col");
     Matrix result = input;
-
     for (std::size_t row = 0; row < result.get_rows(); ++row) {
         float max_value = result(row, 0);
         for (std::size_t col = 1; col < result.get_cols(); ++col) {
@@ -95,11 +94,15 @@ Matrix softmax(const Matrix& input) {
 
         float sum_exp = 0.0f;
 
+        for (std::size_t col = 0; col <result.get_cols(); ++col) {
+            result(row, col) = std::exp(result(row, col) - max_value);
+            sum_exp += result(row, col);
+        }
+
         for (std::size_t col = 0; col < result.get_cols(); ++col) {
             result(row, col) /= sum_exp;
         }
     }
-
     return result;
 } // elements in a row depend on each other
 
