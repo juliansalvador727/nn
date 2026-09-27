@@ -11,7 +11,7 @@ float sigmoid_scalar(float x) {
     }
     float exp_x = std::exp(x);
     return exp_x / (1.0f + exp_x);
-}    
+}
 
 }
 
@@ -107,5 +107,3 @@ Matrix softmax(const Matrix& input) {
 } // elements in a row depend on each other
 
 }
-
-

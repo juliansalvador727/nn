@@ -1,4 +1,5 @@
 #pragma once
+#include <initializer_list>
 #include <vector>
 #include <cstddef>
 
@@ -9,6 +10,7 @@ private:
     std::vector<float> data_;
 public:
     Matrix(std::size_t rows, std::size_t cols);
+    Matrix(std::initializer_list<std::initializer_list<float>> rows);
 
     ~Matrix() = default;
 

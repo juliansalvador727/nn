@@ -4,6 +4,18 @@
 
 Matrix::Matrix(std::size_t rows, std::size_t cols) : rows_(rows), cols_(cols), data_(rows * cols, 0.0f) {}
 
+Matrix::Matrix(std::initializer_list<std::initializer_list<float>> rows)
+    : rows_(rows.size()), cols_(rows.size() == 0 ? 0 : rows.begin()->size()) {
+    for (const auto& row : rows) {
+        if (row.size() != cols_) throw std::invalid_argument("matrix rows must have equal lengths");
+    }
+
+    data_.reserve(rows_ * cols_);
+    for (const auto& row : rows) {
+        data_.insert(data_.end(), row.begin(), row.end());
+    }
+}
+
 float& Matrix::operator()(std::size_t row, std::size_t col) { return data_[row * cols_ + col]; }
 const float& Matrix::operator()(std::size_t row, std::size_t col) const { return data_[row * cols_ + col]; }
 

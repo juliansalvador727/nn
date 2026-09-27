@@ -19,8 +19,6 @@ namespace activations
 [[nodiscard]] Matrix tanh_derivative(const Matrix& input);
 
 [[nodiscard]] Matrix softmax(const Matrix& input); // elements in a row depend on each other
-[[nodiscard]] Matrix softmax_derivative(const Matrix& input);
-
 // todo: add GELU, ELU, Swish
 
 }
