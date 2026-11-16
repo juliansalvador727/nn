@@ -1,3 +1,5 @@
+#include <cmath>
+#include <random>
 #include <stdexcept>
 #include <vector>
 #include "matrix.hpp"
@@ -105,4 +107,52 @@ std::size_t Matrix::get_rows() const noexcept{
 
 std::size_t Matrix::get_cols() const noexcept{
     return cols_;
+}
+
+Matrix Matrix::add_row_vector(const Matrix& row) const {
+    if (row.rows_ != 1 || row.cols_ != cols_) throw std::invalid_argument("row vector must be 1 x cols for broadcast add");
+    Matrix result = *this;
+    for (std::size_t r = 0; r < rows_; ++r) {
+        for (std::size_t c = 0; c < cols_; ++c) {
+            result(r, c) += row(0, c);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::sum_rows() const {
+    Matrix result(1, cols_);
+    for (std::size_t r = 0; r < rows_; ++r) {
+        for (std::size_t c = 0; c < cols_; ++c) {
+            result(0, c) += (*this)(r, c);
+        }
+    }
+    return result;
+}
+
+namespace {
+
+std::mt19937& rng() {
+    static std::mt19937 engine{std::random_device{}()};
+    return engine;
+}
+
+}
+
+Matrix Matrix::random_normal(std::size_t rows, std::size_t cols, float mean, float stddev) {
+    if (!(stddev > 0.0f)) throw std::invalid_argument("stddev must be positive");
+    std::normal_distribution<float> dist(mean, stddev);
+    Matrix result(rows, cols);
+    for (auto& value : result.data_) value = dist(rng());
+    return result;
+}
+
+Matrix Matrix::xavier(std::size_t fan_in, std::size_t fan_out) {
+    if (fan_in == 0) throw std::invalid_argument("fan_in must be nonzero");
+    return random_normal(fan_in, fan_out, 0.0f, std::sqrt(1.0f / static_cast<float>(fan_in)));
+}
+
+Matrix Matrix::he(std::size_t fan_in, std::size_t fan_out) {
+    if (fan_in == 0) throw std::invalid_argument("fan_in must be nonzero");
+    return random_normal(fan_in, fan_out, 0.0f, std::sqrt(2.0f / static_cast<float>(fan_in)));
 }

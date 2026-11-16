@@ -130,6 +130,53 @@ void test_mse() {
                            "MSE must reject mismatched shapes");
 }
 
+void test_matrix_helpers() {
+    Matrix batch{{1.0f, 2.0f, 3.0f}, {4.0f, 5.0f, 6.0f}};
+    Matrix bias{{10.0f, 20.0f, 30.0f}};
+
+    Matrix shifted = batch.add_row_vector(bias);
+    check(shifted.get_rows() == 2 && shifted.get_cols() == 3, "add_row_vector shape");
+    check_near(shifted(0, 0), 11.0f, 1e-6f, "add_row_vector (0, 0)");
+    check_near(shifted(1, 2), 36.0f, 1e-6f, "add_row_vector (1, 2)");
+    check_invalid_argument([&] { (void)batch.add_row_vector(Matrix{{1.0f, 2.0f}}); },
+                           "add_row_vector must reject wrong width");
+    check_invalid_argument([&] { (void)batch.add_row_vector(batch); },
+                           "add_row_vector must reject multi-row input");
+
+    Matrix sums = batch.sum_rows();
+    check(sums.get_rows() == 1 && sums.get_cols() == 3, "sum_rows shape");
+    check_near(sums(0, 0), 5.0f, 1e-6f, "sum_rows col 0");
+    check_near(sums(0, 1), 7.0f, 1e-6f, "sum_rows col 1");
+    check_near(sums(0, 2), 9.0f, 1e-6f, "sum_rows col 2");
+
+    Matrix doubled = batch.apply([](float x) { return 2.0f * x; });
+    check_near(doubled(1, 1), 10.0f, 1e-6f, "apply element-wise");
+    check_near(batch(1, 1), 5.0f, 1e-6f, "apply must not mutate the original");
+}
+
+float sample_stddev(const Matrix& m) {
+    float mean = 0.0f;
+    for (std::size_t i = 0; i < m.size(); ++i) mean += m[i];
+    mean /= static_cast<float>(m.size());
+    float variance = 0.0f;
+    for (std::size_t i = 0; i < m.size(); ++i) variance += (m[i] - mean) * (m[i] - mean);
+    return std::sqrt(variance / static_cast<float>(m.size()));
+}
+
+void test_initializers() {
+    Matrix he = Matrix::he(200, 100);
+    check(he.get_rows() == 200 && he.get_cols() == 100, "he shape is fan_in x fan_out");
+    check_near(sample_stddev(he), std::sqrt(2.0f / 200.0f), 0.005f, "he stddev");
+
+    Matrix xavier = Matrix::xavier(200, 100);
+    check(xavier.get_rows() == 200 && xavier.get_cols() == 100, "xavier shape is fan_in x fan_out");
+    check_near(sample_stddev(xavier), std::sqrt(1.0f / 200.0f), 0.005f, "xavier stddev");
+
+    check_invalid_argument([] { (void)Matrix::he(0, 10); }, "he must reject zero fan_in");
+    check_invalid_argument([] { (void)Matrix::random_normal(2, 2, 0.0f, 0.0f); },
+                           "random_normal must reject non-positive stddev");
+}
+
 } // namespace
 
 int main() {
@@ -138,6 +185,8 @@ int main() {
         test_softmax_and_cross_entropy();
         test_softmax_cross_entropy_gradient();
         test_mse();
+        test_matrix_helpers();
+        test_initializers();
         std::cout << "All tests passed\n";
     } catch (const std::exception& error) {
         std::cerr << "Test failed: " << error.what() << '\n';
